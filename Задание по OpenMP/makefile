@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall -O2 -fopenmp
 TARGET = task
 
-# по умолчанию параллельный режим с 4 потоками
+# дефолтно параллельный режим, 4 потока
 DFLAGS ?= -DPARALLEL -DNUM_THREADS=4
 
 all: $(TARGET)
