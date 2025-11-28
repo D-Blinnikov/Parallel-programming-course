@@ -72,12 +72,23 @@ int main(int argc, char* argv[]) {
     // суммируем независимо внутри групп, две группы процессов работают параллельно
     MPI_Reduce(&local_sum, &group_sum, 1, MPI_LONG_LONG, MPI_SUM, 0, subcomm);
 
+
     if (sub_rank == 0) {
-        cout << (color == 0 ? "[Group EVEN] " : "[Group ODD] ")
-             << "sum = " << group_sum
-             << ", processes = " << sub_size
-             << endl;
+        // отправляем свою сумму в процесс 0 глобального коммуникатора
+        MPI_Send(&group_sum, 1, MPI_LONG_LONG, 0, 0, MPI_COMM_WORLD);
     }
+
+    if (world_rank == 0) {
+        long long total_sum = 0;
+        long long recv;
+
+        for (int i = 0; i < 2; i++) {
+            MPI_Recv(&recv, 1, MPI_LONG_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            total_sum += recv;
+        }
+
+        cout << "Total: " << total_sum << endl;
+}
 
     MPI_Comm_free(&subcomm);
     MPI_Finalize();
